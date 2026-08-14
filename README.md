@@ -173,6 +173,12 @@ HEARTBEAT LED
 
 ## 🔧 Hardware Setup
 
+The project uses a NodeMCU ESP8266 development board connected to the computer via USB.
+
+The ESP8266 provides Wi-Fi connectivity, PWM LED control and a heartbeat LED.
+
+![Hardware Setup](media/hardware-setup.jpeg)
+
 ### Hardware
 
 - **NodeMCU 1.0 (ESP-12E Module)**
@@ -181,7 +187,7 @@ HEARTBEAT LED
 - Wi-Fi router
 - Built-in NodeMCU LED
 - Optional external LED and resistor for future expansion
-
+  
 ### Development Environment
 
 - Arduino IDE
@@ -311,6 +317,8 @@ Heartbeat speed
 ---
 
 ## 🌐 Web Dashboard
+
+![Web Dashboard](media/web-dashboard.jpeg)
 
 The ESP8266 runs an HTTP server on:
 
@@ -470,6 +478,8 @@ The API provides current weather variables such as:
 - relative humidity at 2 m
 - wind speed at 10 m
 - weather code
+
+![Weather API](media/weather-api.jpeg)
 
 ### Example Request
 
