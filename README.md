@@ -177,7 +177,7 @@ The project uses a NodeMCU ESP8266 development board connected to the computer v
 
 The ESP8266 provides Wi-Fi connectivity, PWM LED control and a heartbeat LED.
 
-![Hardware Setup](media/hardware-setup.jpeg)
+<img src="media/hardware-setup.jpeg" width="500" alt="Hardware Setup">
 
 ### Hardware
 
@@ -318,7 +318,7 @@ Heartbeat speed
 
 ## 🌐 Web Dashboard
 
-![Web Dashboard](media/web-dashboard.jpeg)
+<img src="media/web-dashboard.jpeg" width="500" alt="Web Dashboard">
 
 The ESP8266 runs an HTTP server on:
 
@@ -479,7 +479,7 @@ The API provides current weather variables such as:
 - wind speed at 10 m
 - weather code
 
-![Weather API](media/weather-api.jpeg)
+<img src="media/weather-api.jpeg" width="500" alt="Weather API">
 
 ### Example Request
 
