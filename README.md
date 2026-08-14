@@ -1,14 +1,68 @@
 # 🌤️ ESP8266 Weather & IoT Control System
 
-A hands-on **NodeMCU ESP8266 IoT project** that combines Wi-Fi networking, a web control panel, PWM LED control, heartbeat animation, and live weather data from the **Open-Meteo API**.
+[![Arduino](https://img.shields.io/badge/Arduino-IDE-00979D?logo=arduino&logoColor=white)](https://www.arduino.cc/)
+[![ESP8266](https://img.shields.io/badge/Board-ESP8266-red)](https://www.espressif.com/en/products/socs/esp8266)
+[![WiFi](https://img.shields.io/badge/Wi--Fi-AP%20%2B%20STA-blue)](https://en.wikipedia.org/wiki/Wi-Fi)
+[![IoT](https://img.shields.io/badge/Project-IoT-orange)](https://en.wikipedia.org/wiki/Internet_of_things)
+[![Open-Meteo](https://img.shields.io/badge/API-Open--Meteo-green)](https://open-meteo.com/)
 
-The project was built incrementally so that every subsystem could be tested and understood before being combined.
+A hands-on **NodeMCU ESP8266 IoT project** combining Wi-Fi networking, a local web control panel, PWM LED control, heartbeat animation, router connectivity, HTTPS communication, JSON parsing, and live weather information from the Open-Meteo API.
+
+The project was developed incrementally so that every subsystem could be tested and understood before being combined into a single IoT system.
 
 ---
 
-## 📸 Project Overview
+## 🚀 Project Overview
 
-The ESP8266 can operate in two Wi-Fi roles at the same time:
+The ESP8266 operates simultaneously as:
+
+- a **Wi-Fi Access Point**
+- a **Wi-Fi Client / Station**
+- a **Web Server**
+- an **HTTPS API Client**
+- a **JSON parser**
+- a **PWM LED controller**
+
+The system can:
+
+- create the `ESPap` Wi-Fi network
+- connect to a home router
+- host a browser-based control panel
+- control LED brightness
+- control heartbeat speed
+- display network information
+- retrieve weather data from Open-Meteo
+- parse JSON weather responses
+- switch between MANUAL and WEATHER control modes
+- automatically adjust LED brightness according to weather conditions
+
+---
+
+## 🎬 Demo
+
+### 🌐 Web Control Panel
+
+The ESP8266 hosts a local web dashboard accessible from:
+
+```text
+http://192.168.4.1
+```
+
+The dashboard allows the user to:
+
+- monitor Access Point information
+- monitor Router / STA information
+- control LED brightness
+- change heartbeat speed
+- view PWM parameters
+- view current weather information
+- switch between MANUAL and WEATHER modes
+
+---
+
+## 🏗️ Architecture
+
+The system is built around a **NodeMCU ESP8266** operating simultaneously as a Wi-Fi Access Point and a Wi-Fi Client.
 
 ```text
                          INTERNET
@@ -16,163 +70,206 @@ The ESP8266 can operate in two Wi-Fi roles at the same time:
                             ▼
                      ┌─────────────┐
                      │    ROUTER   │
+                     │  Home Wi-Fi │
                      └──────┬──────┘
                             │
-                      Wi-Fi / STA
+                        Wi-Fi / STA
                             │
                             ▼
-                  ┌───────────────────┐
-                  │     ESP8266       │
-                  │   NodeMCU 1.0     │
-                  │                   │
-                  │  Access Point     │
-                  │  Wi-Fi Client     │
-                  │  Web Server       │
-                  │  HTTPS Client     │
-                  │  JSON Parser      │
-                  │  PWM Controller   │
-                  │  Heartbeat LED    │
-                  └─────────┬─────────┘
-                            │
-                          ESPap
-                            │
-                            ▼
-                         📱 Phone
+                  ┌──────────────────────┐
+                  │       ESP8266        │
+                  │   NodeMCU 1.0        │
+                  │                      │
+                  │  Access Point        │
+                  │  Wi-Fi Client        │
+                  │  Web Server          │
+                  │  HTTPS Client        │
+                  │  ArduinoJson         │
+                  │  PWM Controller      │
+                  │  Heartbeat LED       │
+                  └──────────┬───────────┘
+                             │
+                           ESPap
+                             │
+                             ▼
+                          📱 PHONE
+                     192.168.4.1
 ```
 
-The phone can open the ESP8266 web interface and control the LED while the ESP8266 independently connects to a router to access Internet services.
+### Network Architecture
+
+The ESP8266 has two network roles:
+
+```text
+AP side
+
+ESP8266
+   │
+   └── ESPap
+         │
+         └── Phone
+              IP: 192.168.4.x
+
+AP Gateway / ESP8266 AP IP:
+192.168.4.1
+```
+
+and:
+
+```text
+STA side
+
+ESP8266
+   │
+   └── Home Router
+         │
+         └── Internet
+
+Example STA IP:
+192.168.1.xxx
+```
+
+The two interfaces belong to the same ESP8266 but serve different purposes.
+
+### Data Flow
+
+```text
+PHONE
+  │
+  │ HTTP
+  ▼
+ESP8266 WEB SERVER
+  │
+  ├── Brightness control
+  ├── Heartbeat speed
+  ├── MANUAL / WEATHER mode
+  └── Network monitoring
+
+
+ESP8266 STA
+  │
+  │ HTTPS GET
+  ▼
+OPEN-METEO API
+  │
+  │ JSON
+  ▼
+ARDUINOJSON
+  │
+  ▼
+WEATHER VARIABLES
+  │
+  ▼
+CONTROL LOGIC
+  │
+  ▼
+PWM
+  │
+  ▼
+HEARTBEAT LED
+```
 
 ---
 
-## ✨ Features
+## 🔧 Hardware Setup
 
-### Networking
-- ESP8266 Access Point (`ESPap`)
-- Wi-Fi Client / Station (STA) connection to a router
-- AP + STA simultaneous operation
-- AP IP address and STA IP address reporting
-- Connected AP client count
-- Router RSSI, gateway and connection state
-- Router reconnection attempts
-
-### LED / PWM
-- PWM-controlled built-in LED
-- 5 kHz PWM frequency
-- 10-bit PWM range (`0–1023`)
-- Adjustable brightness: **20%, 50%, 90%**
-- Heartbeat-style brightness animation
-- Active-low LED handling
-
-### Web Dashboard
-- Access Point information
-- Router / STA information
-- LED brightness buttons
-- Heartbeat speed buttons
-- PWM information
-- Weather information
-- MANUAL / WEATHER control mode
-
-### Weather API
-- HTTPS request to Open-Meteo
-- HTTP response validation
-- JSON parsing with ArduinoJson
-- Temperature
-- Relative humidity
-- Wind speed
-- Weather code
-- Human-readable weather condition
-- Observation time
-- Periodic updates
-
----
-
-## 🧭 Development Stages
-
-The project was developed in stages:
-
-| Stage | Description | Status |
-|---|---|---|
-| 1 | PWM + heartbeat LED | ✅ |
-| 2 | Access Point + Web Server | ✅ |
-| 3 | Web brightness control + network information | ✅ |
-| 4 | Web heartbeat speed control | ✅ |
-| 5 | AP + STA router connection | ✅ |
-| 6 | Open-Meteo API connection | ✅ |
-| 7 | HTTPS + JSON parsing | ✅ |
-| 8 | Weather data on web dashboard | ✅ |
-| 9 | Weather-based brightness mode | ✅ |
-
----
-
-# 🛠️ Hardware
+### Hardware
 
 - **NodeMCU 1.0 (ESP-12E Module)**
 - USB cable
-- Computer with Arduino IDE
-- 2.4 GHz Wi-Fi router
+- Computer
+- Wi-Fi router
+- Built-in NodeMCU LED
 - Optional external LED and resistor for future expansion
 
-> The built-in NodeMCU LED is typically connected to an active-low GPIO, so its PWM value is inverted in software.
-
----
-
-# 💻 Software
+### Development Environment
 
 - Arduino IDE
 - ESP8266 board support
-- ESP8266WiFi
-- ESP8266WebServer
-- WiFiClientSecure
-- ESP8266HTTPClient
-- [ArduinoJson](https://arduinojson.org/)
+- ArduinoJson library
 
----
+### Board Selection
 
-# 📚 Core Concepts
+In Arduino IDE:
 
-## PWM
+```text
+Tools
+→ Board
+→ ESP8266 Boards
+→ NodeMCU 1.0 (ESP-12E Module)
+```
 
-PWM means **Pulse Width Modulation**.
+### Serial Monitor
 
 The project uses:
 
 ```text
-Frequency = 5000 Hz
-Resolution = 10-bit
-Range = 0–1023
+115200 baud
 ```
 
-The user-facing brightness percentage is mapped onto the PWM range.
+for debugging and network/weather information.
+
+---
+
+## ⚡ PWM and LED Control
+
+The LED is controlled using **PWM (Pulse Width Modulation)**.
+
+Configuration:
+
+```text
+PWM Frequency  = 5000 Hz
+Resolution     = 10-bit
+PWM Range      = 0–1023
+```
+
+### Duty Cycle
+
+Duty cycle describes the percentage of one PWM period during which the output is active.
 
 Examples:
 
 ```text
-0%   → 0
-25%  → ~256
-50%  → ~512
-75%  → ~768
-100% → 1023
+0%   → fully off
+25%  → low average output
+50%  → medium average output
+75%  → high average output
+100% → maximum output
 ```
 
-Because the built-in LED is active-low, the actual raw PWM value is inverted before being written to the pin.
+For a 10-bit PWM range:
+
+```text
+0
+1
+2
+...
+1023
+```
+
+The user-facing brightness percentage is mapped onto this range.
+
+The built-in NodeMCU LED is typically **active-low**, so the software inverts the PWM value before writing it to the pin.
 
 ---
 
-## Heartbeat
+## 💓 Heartbeat LED
 
-The heartbeat effect is created by gradually increasing and decreasing brightness:
+The LED does not simply switch between ON and OFF.
+
+Instead, the brightness gradually changes:
 
 ```text
 10 → maximum → 10
 ```
 
-twice, followed by a pause:
+twice:
 
 ```text
-💓 💓 ........ 💓 💓
+💓  💓  ........  💓  💓
 ```
 
-The speed is controlled through:
+The heartbeat timing is controlled through:
 
 ```text
 FADE_DELAY
@@ -180,68 +277,64 @@ HEART_DELAY
 BEAT_PAUSE
 ```
 
-Available profiles:
+### Heartbeat Profiles
 
 ```text
 SLOW
+FADE_DELAY = 20 ms
+HEART_DELAY = 150 ms
+BEAT_PAUSE = 1000 ms
+
+
 NORMAL
+FADE_DELAY = 10 ms
+HEART_DELAY = 100 ms
+BEAT_PAUSE = 600 ms
+
+
 FAST
+FADE_DELAY = 5 ms
+HEART_DELAY = 50 ms
+BEAT_PAUSE = 250 ms
+```
+
+PWM frequency and heartbeat speed are different concepts:
+
+```text
+PWM frequency
+→ electrical PWM switching rate
+
+Heartbeat speed
+→ visible brightness animation rate
 ```
 
 ---
 
-# 📡 Network Architecture
+## 🌐 Web Dashboard
 
-The ESP8266 uses:
-
-```cpp
-WiFi.mode(WIFI_AP_STA);
-```
-
-This enables both interfaces.
-
-### Access Point
+The ESP8266 runs an HTTP server on:
 
 ```text
-SSID: ESPap
-AP IP: 192.168.4.1
+Port 80
 ```
 
-Phone access:
+The main page is:
 
 ```text
-http://192.168.4.1
+/
 ```
 
-### Station / Router
+### Brightness Control
 
-The ESP8266 connects to the configured router and receives an IP using DHCP.
-
-Example:
+The web page provides:
 
 ```text
-STA IP: 192.168.1.37
+20%
+50%
+90%
 ```
 
-These are two different network interfaces belonging to the same ESP8266.
-
----
-
-# 🌐 Web Server
-
-The web server runs on:
-
-```cpp
-ESP8266WebServer server(80);
-```
-
-The main route is:
-
-```cpp
-server.on("/", handleRoot);
-```
-
-The brightness control uses:
+The requests are:
 
 ```text
 /set?brightness=20
@@ -249,7 +342,9 @@ The brightness control uses:
 /set?brightness=90
 ```
 
-The heartbeat speed uses:
+### Heartbeat Control
+
+The heartbeat speed can be changed with:
 
 ```text
 /speed?value=SLOW
@@ -257,20 +352,126 @@ The heartbeat speed uses:
 /speed?value=FAST
 ```
 
-The control mode uses:
+### Control Mode
+
+The system supports:
+
+```text
+MANUAL
+WEATHER
+```
+
+Manual brightness requests use:
 
 ```text
 /mode?value=MANUAL
+```
+
+Weather-based mode uses:
+
+```text
 /mode?value=WEATHER
+```
+
+### Wi-Fi Client Detection
+
+The number of phones/devices connected to the ESP8266 Access Point is read using:
+
+```cpp
+WiFi.softAPgetStationNum();
+```
+
+The current prototype uses this information to limit LED brightness:
+
+```text
+0 connected clients
+→ maximum 20%
+
+1 or more connected clients
+→ selected brightness
 ```
 
 ---
 
-# 🌤️ Weather API
+## 📶 Wi-Fi Networking
 
-The project uses the [Open-Meteo Weather API](https://open-meteo.com/en/docs).
+The ESP8266 uses:
 
-Example request:
+```cpp
+WiFi.mode(WIFI_AP_STA);
+```
+
+This enables simultaneous:
+
+```text
+AP = Access Point
+STA = Station / Wi-Fi Client
+```
+
+### Access Point
+
+Example:
+
+```text
+SSID: ESPap
+Password: thereisnospoon
+IP: 192.168.4.1
+```
+
+The phone can connect directly to the ESP8266.
+
+### Station / Router
+
+The ESP8266 also connects to a normal Wi-Fi router using:
+
+```cpp
+WiFi.begin(ROUTER_SSID, ROUTER_PASSWORD);
+```
+
+The router assigns the ESP8266 an STA IP through DHCP.
+
+Example:
+
+```text
+STA IP: 192.168.1.xxx
+```
+
+### Connection Monitoring
+
+The STA connection is checked with:
+
+```cpp
+WiFi.status() == WL_CONNECTED
+```
+
+The signal strength can be inspected using:
+
+```cpp
+WiFi.RSSI()
+```
+
+The router gateway can be read using:
+
+```cpp
+WiFi.gatewayIP()
+```
+
+---
+
+## 🌤️ Weather API
+
+The project uses the **Open-Meteo Weather Forecast API**:
+
+https://open-meteo.com/en/docs
+
+The API provides current weather variables such as:
+
+- temperature at 2 m
+- relative humidity at 2 m
+- wind speed at 10 m
+- weather code
+
+### Example Request
 
 ```text
 https://api.open-meteo.com/v1/forecast
@@ -279,9 +480,9 @@ https://api.open-meteo.com/v1/forecast
 &current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
 ```
 
-The API response is JSON.
+The coordinates can be changed to another location.
 
-Example:
+### Example Response
 
 ```json
 {
@@ -295,33 +496,37 @@ Example:
 }
 ```
 
-The project extracts:
-
-```text
-temperature_2m
-relative_humidity_2m
-wind_speed_10m
-weather_code
-time
-```
-
 ---
 
-# 🔐 HTTPS
+## 🔐 HTTPS Communication
 
-The weather API is accessed using:
-
-```cpp
-WiFiClientSecure client;
-```
-
-and:
+Because the weather API uses HTTPS, the ESP8266 uses:
 
 ```cpp
-HTTPClient http;
-http.begin(client, WEATHER_URL);
-int httpCode = http.GET();
+WiFiClientSecure
 ```
+
+The HTTP request is performed using:
+
+```cpp
+HTTPClient
+```
+
+Conceptually:
+
+```text
+ESP8266
+   │
+   │ HTTPS GET
+   ▼
+Open-Meteo
+   │
+   │ HTTPS response
+   ▼
+ESP8266
+```
+
+The project validates the HTTP response code.
 
 A successful request produced:
 
@@ -329,23 +534,25 @@ A successful request produced:
 HTTP Response Code: 200
 ```
 
-### Development certificate setting
+### Development Note
 
-During development we used:
+During the learning/test stage, the project used:
 
 ```cpp
 client.setInsecure();
 ```
 
-This disables server certificate verification.
+This disables TLS certificate verification.
 
-**Do not treat this as a production security configuration.** For a real deployment, certificate validation should be configured appropriately.
+This is acceptable for the current prototype/testing stage, but a production implementation should perform proper certificate validation.
 
 ---
 
-# 🧩 JSON Parsing
+## 🧩 JSON Parsing with ArduinoJson
 
-ArduinoJson is used to convert the response into accessible data.
+The raw API response is JSON.
+
+The project uses ArduinoJson to parse it:
 
 ```cpp
 DynamicJsonDocument doc(2048);
@@ -354,69 +561,144 @@ DeserializationError error =
     deserializeJson(doc, payload);
 ```
 
-Then:
+The `current` object is then accessed:
 
 ```cpp
 JsonObject current = doc["current"];
 ```
 
-and values are read:
+The required values are extracted:
 
 ```cpp
-float temperature = current["temperature_2m"];
-int humidity = current["relative_humidity_2m"];
-float windSpeed = current["wind_speed_10m"];
-int weatherCode = current["weather_code"];
+float temperature =
+    current["temperature_2m"];
+
+int humidity =
+    current["relative_humidity_2m"];
+
+float windSpeed =
+    current["wind_speed_10m"];
+
+int weatherCode =
+    current["weather_code"];
 ```
 
-This transforms:
+The project also reads:
 
 ```text
-Raw JSON
-   ↓
-Parsed JSON
-   ↓
-Typed variables
+current.time
 ```
+
+for the observation timestamp.
+
+ArduinoJson documentation:
+
+https://arduinojson.org/
 
 ---
 
-# 🌦️ Weather Codes
+## 🌦️ Weather Codes
 
-The project converts weather codes into readable text.
+The project maps weather codes into readable descriptions.
 
-Examples:
+Prototype mapping:
 
 ```text
 0       Clear Sky
 1       Mainly Clear
 2       Partly Cloudy
 3       Overcast
+
 45/48   Fog
+
 51-55   Drizzle
+
 61-65   Rain
+
 71-75   Snow
+
 80-82   Rain Showers
+
 95      Thunderstorm
+
 96/99   Thunderstorm with Hail
 ```
 
-Always check the official Open-Meteo documentation for the authoritative weather-code list:
+For example:
+
+```text
+weather_code = 2
+```
+
+is displayed as:
+
+```text
+Partly Cloudy
+```
+
+The official Open-Meteo documentation should be used as the authoritative reference for the weather-code list:
 
 https://open-meteo.com/en/docs
 
 ---
 
-# 💡 Weather-Based LED Mode
+## 🔄 Weather Update System
 
-The web dashboard provides two modes:
+The project deliberately separates web-page refresh from external API requests.
+
+### Web Page
+
+The browser refreshes approximately every:
 
 ```text
-MANUAL
-WEATHER
+2 seconds
 ```
 
-### MANUAL
+### Weather API
+
+The external weather data is refreshed approximately every:
+
+```text
+60 seconds
+```
+
+This prevents the browser refresh rate from causing unnecessary external API requests.
+
+The latest weather data is stored in ESP8266 memory and reused by the web dashboard.
+
+---
+
+## 🌡️ Weather Information
+
+The web dashboard displays:
+
+```text
+Temperature
+Humidity
+Wind Speed
+Condition
+Weather Code
+Observation Time
+```
+
+Example:
+
+```text
+Temperature : 30.9 °C
+Humidity    : 72 %
+Wind Speed  : 10.8 km/h
+Weather Code: 2
+Condition   : Partly Cloudy
+Observation : 2026-08-14T08:30
+```
+
+---
+
+## 🤖 MANUAL vs WEATHER Mode
+
+The system supports two brightness-control modes.
+
+### MANUAL Mode
 
 The user chooses:
 
@@ -426,13 +708,15 @@ The user chooses:
 90%
 ```
 
-### WEATHER
+The selected value becomes the heartbeat's maximum brightness.
 
-Brightness is selected from the weather code.
+### WEATHER Mode
+
+The ESP8266 uses the weather code to determine the maximum heartbeat brightness automatically.
 
 Prototype mapping:
 
-| Condition | Maximum Brightness |
+| Weather condition | Maximum brightness |
 |---|---:|
 | Clear Sky | 90% |
 | Mainly Clear | 80% |
@@ -445,7 +729,7 @@ Prototype mapping:
 | Rain Showers | 30% |
 | Thunderstorm | 20% |
 
-This demonstrates a basic embedded decision pipeline:
+The decision chain is:
 
 ```text
 Weather API
@@ -454,175 +738,190 @@ JSON
     ↓
 weather_code
     ↓
-decision logic
+Decision logic
     ↓
-brightness
+Maximum brightness
+    ↓
+Heartbeat
     ↓
 PWM
     ↓
 LED
 ```
 
----
-
-# 🔄 Update Intervals
-
-The prototype separates web refreshes from API requests.
-
-### Web page
-
-```text
-2 seconds
-```
-
-Used only to refresh the local dashboard.
-
-### Weather API
-
-```text
-60 seconds
-```
-
-Used to request new weather data.
-
-This prevents the web page refresh interval from causing unnecessary external API requests.
+Pressing a manual brightness button switches the controller back to MANUAL mode.
 
 ---
 
-# 🖥️ Example Serial Output
+## ✅ Results
+
+The project successfully demonstrated:
 
 ```text
-ROUTER CONNECTED!
+✓ ESP8266 Access Point
+✓ Phone connection to ESPap
+✓ Local web server
+✓ Web-based LED brightness control
+✓ Web-based heartbeat speed control
+✓ AP client detection
+✓ Router / STA connection
+✓ STA IP detection
+✓ RSSI monitoring
+✓ Internet access through router
+✓ HTTPS weather API request
+✓ HTTP 200 response
+✓ JSON parsing with ArduinoJson
+✓ Weather information on Serial Monitor
+✓ Weather information on Web Dashboard
+✓ MANUAL / WEATHER control modes
+✓ Weather-based LED brightness
+```
+
+### Example Serial Monitor
+
+```text
+================================
+ROUTER CONNECTED
+================================
+
 STA IP: 192.168.1.xxx
+RSSI: -xx dBm
 
-REQUESTING WEATHER DATA
-HTTP Response Code: 200
-
+================================
 WEATHER INFORMATION
-------------------------------
+================================
+
 Temperature : 30.9 °C
 Humidity    : 72 %
 Wind Speed  : 10.8 km/h
 Weather Code: 2
 Condition   : Partly Cloudy
 Observation : 2026-08-14T08:30
-------------------------------
 ```
 
 ---
 
-# 🧪 Testing
+## 🧪 Testing Procedure
 
 Recommended test order:
 
-1. Confirm the correct board:
-   `NodeMCU 1.0 (ESP-12E Module)`
-
-2. Confirm Serial Monitor:
-   `115200 baud`
-
-3. Test AP:
-   - phone sees `ESPap`
-   - phone connects successfully
-
-4. Test web server:
-   - open `192.168.4.1`
-
-5. Test STA:
-   - ESP8266 connects to the router
-   - Serial Monitor shows `STA IP`
-
-6. Test Internet:
-   - weather API returns HTTP `200`
-
-7. Test JSON:
-   - temperature, humidity, wind and weather code appear
-
-8. Test web dashboard:
-   - weather section displays the parsed data
-
-9. Test WEATHER mode:
-   - weather code changes the LED maximum brightness
+1. Select **NodeMCU 1.0 (ESP-12E Module)**.
+2. Upload the sketch.
+3. Open Serial Monitor at **115200 baud**.
+4. Confirm `ESPap` appears on the phone.
+5. Connect the phone to `ESPap`.
+6. Open `http://192.168.4.1`.
+7. Test 20%, 50% and 90% brightness.
+8. Test SLOW, NORMAL and FAST heartbeat.
+9. Confirm router / STA connection.
+10. Confirm the STA IP.
+11. Confirm Internet access.
+12. Confirm Open-Meteo returns HTTP 200.
+13. Confirm JSON parsing.
+14. Confirm weather data on the dashboard.
+15. Test MANUAL mode.
+16. Test WEATHER mode.
 
 ---
 
-# 🐛 Troubleshooting
+## 🐛 Troubleshooting
 
-## Only dots appear during Wi-Fi connection
-
-The ESP8266 is waiting for the router connection.
+### `ESPap` does not appear
 
 Check:
 
-- SSID
-- password
-- router availability
-- 2.4 GHz compatibility
+- ESP8266 is powered
+- `WiFi.softAP()` is being called
+- the selected board is `NodeMCU 1.0 (ESP-12E Module)`
+- the phone's Wi-Fi is enabled
 
-## HTTP response is not 200
+### The web page disappears when the phone disconnects
 
-Check:
+This is expected.
 
-- router connection
-- Internet access
-- API URL
-- HTTPS/TLS behavior
-
-## JSON parsing fails
-
-Check:
-
-- whether the API returned JSON
-- whether the requested fields changed
-- ArduinoJson installation
-- document capacity
-
-## Web page disappears when the phone disconnects
-
-This is expected when using the ESP8266 Access Point.
-
-The phone must remain connected to `ESPap` to reach:
+The phone must be connected to `ESPap` to reach:
 
 ```text
 192.168.4.1
 ```
 
-The ESP8266 itself can continue running normally.
+The ESP8266 itself can continue running after the phone disconnects.
+
+### Router connection fails
+
+Check:
+
+- router SSID
+- router password
+- router availability
+- 2.4 GHz Wi-Fi compatibility
+
+### Weather request fails
+
+Check:
+
+- STA connection
+- Internet access
+- API URL
+- HTTP response code
+- HTTPS/TLS configuration
+
+### JSON parsing fails
+
+Check:
+
+- API response
+- ArduinoJson installation
+- requested JSON fields
+- document memory capacity
 
 ---
 
-# 🔒 GitHub Security
+## 🔒 Security Notes
 
-Never commit real credentials.
-
-Before pushing:
-
-```text
-SEARCH THE REPOSITORY FOR:
-- real SSID
-- real Wi-Fi password
-- API keys
-- tokens
-- certificates/private keys
-```
+Do **not** commit real Wi-Fi passwords or other secrets to GitHub.
 
 Use placeholders:
 
 ```cpp
-const char* ROUTER_SSID = "YOUR_WIFI_NAME";
-const char* ROUTER_PASSWORD = "YOUR_WIFI_PASSWORD";
+const char* ROUTER_SSID =
+    "YOUR_WIFI_NAME";
+
+const char* ROUTER_PASSWORD =
+    "YOUR_WIFI_PASSWORD";
 ```
 
-For repositories containing secrets accidentally, remove the secret from Git history as well as the current file and rotate the credential.
+Before pushing code, search the repository for:
+
+```text
+password
+SSID
+token
+API key
+secret
+private key
+```
+
+If a real credential is accidentally committed, remove it from repository history and rotate the credential.
+
+For production HTTPS systems, replace:
+
+```cpp
+client.setInsecure();
+```
+
+with appropriate certificate validation.
 
 ---
 
-# 📁 Repository Structure
+## 📁 Repository Structure
 
 ```text
-.
+ESP8266-Weather-API-IoT/
+│
 ├── README.md
 ├── GITHUB_PUBLISHING_NOTES.md
+│
 ├── docs/
 │   ├── 01-project-overview.md
 │   ├── 02-wifi-and-networking.md
@@ -631,24 +930,104 @@ For repositories containing secrets accidentally, remove the secret from Git his
 │   ├── 05-json-parsing.md
 │   ├── 06-weather-codes.md
 │   ├── 07-weather-web-dashboard.md
-│   └── 08-weather-led-control.md
+│   ├── 08-weather-led-control.md
+│   └── 09-github-media-and-screenshots.md
+│
 └── src/
     └── weather_api_test.ino
 ```
 
 ---
 
-# 🚀 Future Improvements
+## 📈 Project Development Stages
 
-Possible next steps:
+The project was developed incrementally:
 
-- Replace blocking `delay()` calls with a fully `millis()`-based non-blocking scheduler.
-- Add a proper automatic router reconnect state machine.
-- Add a weather refresh timestamp.
-- Add more weather variables.
+| Stage | Feature | Status |
+|---|---|---|
+| 1 | PWM LED heartbeat | ✅ |
+| 2 | Access Point + Web Server | ✅ |
+| 3 | Web brightness control + network information | ✅ |
+| 4 | Web heartbeat speed control | ✅ |
+| 5 | AP + STA router connection | ✅ |
+| 6 | Open-Meteo API connection | ✅ |
+| 7 | HTTPS + JSON parsing | ✅ |
+| 8 | Weather data on web dashboard | ✅ |
+| 9 | Weather-based automatic brightness | ✅ |
+
+This staged approach made it possible to verify each subsystem before integration.
+
+---
+
+## 🚀 Future Improvements
+
+Possible future development:
+
+- Replace blocking `delay()` calls with a fully non-blocking `millis()`-based scheduler.
+- Improve automatic router reconnection.
 - Add forecast data.
-- Add charts to the web dashboard.
-- Add a configurable location through the web interface.
-- Add external LED RGB control.
+- Add configurable location through the web dashboard.
+- Add real-time weather updates without full page reloads.
+- Add charts and historical weather information.
+- Add RGB LED support.
+- Create weather-dependent LED color effects.
 - Add authenticated web controls.
-- Replace `setInsecure()` with proper TLS certificate validation.
+- Add proper TLS certificate validation.
+- Add external sensors.
+- Add data logging.
+- Add MQTT support.
+- Add a mobile-friendly responsive interface.
+- Add OTA firmware updates.
+
+---
+
+## 📚 Documentation
+
+Detailed technical explanations are available in the `docs/` directory:
+
+```text
+docs/
+├── 01-project-overview.md
+├── 02-wifi-and-networking.md
+├── 03-open-meteo-api.md
+├── 04-https-request.md
+├── 05-json-parsing.md
+├── 06-weather-codes.md
+├── 07-weather-web-dashboard.md
+├── 08-weather-led-control.md
+└── 09-github-media-and-screenshots.md
+```
+
+---
+
+## 🙏 Project Philosophy
+
+The project was intentionally developed one subsystem at a time.
+
+The goal was not only to make the device work, but to understand:
+
+```text
+Hardware
+   ↓
+PWM
+   ↓
+Embedded Software
+   ↓
+Wi-Fi
+   ↓
+Web Server
+   ↓
+Internet
+   ↓
+HTTPS
+   ↓
+REST API
+   ↓
+JSON
+   ↓
+Decision Logic
+   ↓
+Physical Output
+```
+
+This makes the project a practical introduction to **embedded systems, networking, IoT, APIs, and web-controlled hardware**.
